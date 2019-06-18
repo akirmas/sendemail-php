@@ -1,0 +1,4 @@
+[submodule "utils"]
+	path = utils
+	url = git@github.com:askirmas/php-utils.git
+	branch = master
