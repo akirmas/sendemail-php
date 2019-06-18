@@ -1,6 +1,13 @@
 <?php
-require_once(__DIR__.'/vendor/autoload.php');
+use PHPMailer\PHPMailer\Exception;
 
+require_once(__DIR__.'/vendor/autoload.php');
+/**
+ * @param int $SMTPDebug Values:
+ * 0 off (for production use);
+ * 1 client messages;
+ * 2 client and server messages
+ */
 function sendEmail(
   string $username,
   string $password, 
@@ -11,12 +18,7 @@ function sendEmail(
   string $name = null,
   string $sendBox = null,
   string $sendFolder = 'Sent Mail',
-  //Enable SMTP debugging
-  // 0 = off (for production use)
-  // 1 = client messages
-  // 2 = client and server messages
   int $SMTPDebug = 0,
-  //Set the hostname of the mail server
   string $host = 'smtp.gmail.com',
   int $port = 587,
   string $SMTPSecure = 'tls',
@@ -39,8 +41,8 @@ function sendEmail(
     if (isset($$property) && !empty($$property))
       $mail->{ucfirst($property)} = $$property;
   
-  foreach($receivers as $rBox => $rName) 
-    $mail->addAddress($rBox, $rName);
+  foreach($receivers as $receiver) 
+    $mail->addAddress($receiver['email'], $receiver['name']);
 
   $mail->setFrom($sendBox, $name);  
   $mail->msgHTML($html);
@@ -49,7 +51,7 @@ function sendEmail(
   if (!$mail->send()) {
     $error = $mail->ErrorInfo;
     unset($mail);
-    return compact('error');
+    throw new Exception($error, 500);
   }
   $send = true;
   $imap = false;
